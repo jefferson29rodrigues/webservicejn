@@ -1,0 +1,23 @@
+## --- .NET Core / ASP.NET Core ---
+bin/
+obj/
+out/
+.vscode/
+.vs/
+usersecrets.json
+appsettings.Development.json
+
+## --- Tesseract & Native Assets ---
+# NÃO ignore as pastas x64 e x86 que o NuGet cria no build, 
+# mas ignore os logs de execução se houver.
+*.log
+
+## --- Pacotes e SO ---
+node_modules/
+.DS_Store
+Thumbs.db
+
+## --- Publicação ---
+publish/
+*.pfx
+*.publishsettings
