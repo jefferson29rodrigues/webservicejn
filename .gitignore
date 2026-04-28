@@ -2,22 +2,45 @@
 bin/
 obj/
 out/
-.vscode/
-.vs/
+artifacts/
 usersecrets.json
 appsettings.Development.json
+appsettings.Local.json
+appsettings.*.local.json
+secrets.json
+
+# Certificados / segurança
+*.pfx
+*.p12
+*.key
+
+# Arquivos de usuário / IDE
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
 
 ## --- Tesseract & Native Assets ---
 # NÃO ignore as pastas x64 e x86 que o NuGet cria no build, 
 # mas ignore os logs de execução se houver.
 *.log
+logs/
+*.tmp
+*.temp
 
 ## --- Pacotes e SO ---
 node_modules/
 .DS_Store
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 
 ## --- Publicação ---
 publish/
 *.pfx
 *.publishsettings
+wwwroot/dist/
+wwwroot/build/
+

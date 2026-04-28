@@ -21,7 +21,7 @@ namespace SorrisoApi.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            return new string[] { "value1", "value2" };
+            return new string[] { "Hello World", "Jeff!" };
         }
 
         // GET api/<ProcessarImagemController>/5
