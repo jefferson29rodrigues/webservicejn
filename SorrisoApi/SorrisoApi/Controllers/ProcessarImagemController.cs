@@ -64,13 +64,5 @@ namespace SorrisoApi.Controllers
         public void Delete(int id)
         {
         }
-
-        [HttpGet("acesso")]
-        public void testaAcesso()
-        {
-            var acessa = new AcessaSiteSeleniumService();
-
-            acessa.testeAcesso();
-        }
     }
 }

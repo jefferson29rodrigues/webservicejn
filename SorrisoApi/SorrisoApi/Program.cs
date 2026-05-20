@@ -9,6 +9,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<IOcrService, ProcessarImagemService>();
+builder.Services.AddScoped<AcessaSiteSeleniumService>();
 
 var app = builder.Build();
 

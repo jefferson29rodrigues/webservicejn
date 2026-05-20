@@ -1,5 +1,6 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using SorrisoApi.Models.DTOs;
 
 namespace SorrisoApi.Services
 {
@@ -12,15 +13,15 @@ namespace SorrisoApi.Services
             driver = new ChromeDriver();
         }
 
-        public void testeAcesso()
+        public async Task<List<DiaEscalaDTO>> ConsultarEscalaProgramada()
         {
             driver
                 .Navigate()
-                .GoToUrl("https://siteparaacessarcomseleniumeconsultarescala.com.br");
+                .GoToUrl("https://acessaSiteComSelenium123.com.br");
 
-            var nomeDoUsuario = driver.FindElement(By.Name("usuario"));
-            var senha = driver.FindElement(By.Name("senha"));
-            var entrar = driver.FindElement(By.Name("login"));
+            var nomeDoUsuario = driver.FindElement(By.Name("Usuario"));
+            var senha = driver.FindElement(By.Name("Senha"));
+            var entrar = driver.FindElement(By.Name("Login"));
 
             nomeDoUsuario.SendKeys("usuario");
             senha.SendKeys("senha");
@@ -32,8 +33,28 @@ namespace SorrisoApi.Services
             var escalaProgramada = driver.FindElement(By.Id("botaoEscala"));
             escalaProgramada.Click();
 
-            var tabelaEscalaProgramada = driver.FindElement(By.Id("tabelaEscala")).Text;
-            Console.WriteLine(tabelaEscalaProgramada);
+            var tabelaEscalaProgramada = driver.FindElement(By.Id("tabela"));
+            var linhas = tabelaEscalaProgramada.FindElements(By.TagName("tr"));
+            //var tabela = tabelaEscalaProgramada.GetAttribute("outerHTML");
+            
+            var escala = new List<DiaEscalaDTO>();
+
+            foreach (var linha in linhas)
+            {
+                var colunas = linha.FindElements(By.TagName("td"));
+                if (colunas.Count > 1)
+                {
+                    var diaEscala = new DiaEscalaDTO
+                    {
+                        Dia = colunas[0].Text,
+                        HoraInicio = colunas[1].Text,
+                        HoraFim = colunas[2].Text,
+                        Local = colunas[3].Text
+                    };
+                    escala.Add(diaEscala);
+                }
+            }
+            return escala;
         }
     }
 }
