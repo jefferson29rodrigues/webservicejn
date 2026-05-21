@@ -46,14 +46,19 @@ namespace SorrisoApi.Services
                 {
                     var diaEscala = new DiaEscalaDTO
                     {
-                        Dia = colunas[0].Text,
-                        HoraInicio = colunas[1].Text,
-                        HoraFim = colunas[2].Text,
-                        Local = colunas[3].Text
+                        Data = colunas[1].Text,
+                        Dia = colunas[2].Text,
+                        Tipo = colunas[3].Text,
+                        Local = colunas[6].Text,
+                        Equipamento = colunas[8].Text,
+                        HoraInicio = colunas[11].Text,
+                        HoraFim = colunas[12].Text,
+                        Cargo = colunas[12].Text
                     };
                     escala.Add(diaEscala);
                 }
             }
+            driver.Quit();
             return escala;
         }
     }
