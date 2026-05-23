@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SorrisoApi.Models;
 using SorrisoApi.Services;
 
@@ -8,6 +9,7 @@ namespace SorrisoApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [EnableRateLimiting("fixed")]
     public class ProcessarImagemController : ControllerBase
     {
         private readonly IOcrService _processarImagemService;
