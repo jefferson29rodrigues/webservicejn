@@ -17,23 +17,23 @@ namespace SorrisoApi.Services
         {
             driver
                 .Navigate()
-                .GoToUrl("http://totem.sorrisodecuritiba.com.br:9810/rs1totem/LoginTotem.aspx?parms=qh1kmJh2Tluczckdz5b0LjyDhmklei7AAZctMlFgCgsWprEYquaNTASRIvhJsbxYyMxPRV1Dp0Cz7U6+ijtjs/nU6t5aT3RcJGufuAyhqVURVcbdwY9O0Kh6dA5rfAKrzZrNjGuJhnN+rWf3xFFQNA==");
+                .GoToUrl("http://siteparaacessarcomselenium.com.br");
 
-            var nomeDoUsuario = driver.FindElement(By.Name("ctl00$ContentPlaceHolder1$txtUsuario"));
-            var senha = driver.FindElement(By.Name("ctl00$ContentPlaceHolder1$txtSenha"));
-            var entrar = driver.FindElement(By.Name("ctl00$ContentPlaceHolder1$btnLogin"));
+            var nomeDoUsuario = driver.FindElement(By.Name("Usuario"));
+            var senha = driver.FindElement(By.Name("Senha"));
+            var entrar = driver.FindElement(By.Name("Login"));
 
-            nomeDoUsuario.SendKeys("9849");
-            senha.SendKeys("20719&gWi");
+            nomeDoUsuario.SendKeys("usuario");
+            senha.SendKeys("senha");
             entrar.Submit();
 
-            var trafego = driver.FindElement(By.Id("dtlMenu_lnkImageMenu_6"));
+            var trafego = driver.FindElement(By.Id("trafego"));
             trafego.Click();
 
-            var escalaProgramada = driver.FindElement(By.Id("dtlMenu_lnkImageMenu_0"));
+            var escalaProgramada = driver.FindElement(By.Id("escalapro"));
             escalaProgramada.Click();
 
-            var tabelaEscalaProgramada = driver.FindElement(By.Id("ContentPlaceHolder1_grvEscalaProgramadaRealizada"));
+            var tabelaEscalaProgramada = driver.FindElement(By.Id("tabela"));
             var linhas = tabelaEscalaProgramada.FindElements(By.TagName("tr"));
             //var tabela = tabelaEscalaProgramada.GetAttribute("outerHTML");
             

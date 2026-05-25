@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.RateLimiting;
+using SorrisoApi.Middlewares;
 using SorrisoApi.Services;
 using System.Threading.RateLimiting;
 
@@ -34,6 +35,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ApiKeyMiddleware>();
 
 app.UseRateLimiter();
 
