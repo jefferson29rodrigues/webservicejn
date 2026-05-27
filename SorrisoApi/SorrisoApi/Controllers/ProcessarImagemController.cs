@@ -26,13 +26,6 @@ namespace SorrisoApi.Controllers
             return new string[] { "Hello World", "Jeff!" };
         }
 
-        // GET api/<ProcessarImagemController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
         // POST api/<ProcessarImagemController>
         [HttpPost]
         public async Task<IActionResult> Post(IFormFile imagem)
@@ -53,18 +46,6 @@ namespace SorrisoApi.Controllers
             };
 
             return Ok(dadosExtraidos);
-        }
-
-        // PUT api/<ProcessarImagemController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<ProcessarImagemController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

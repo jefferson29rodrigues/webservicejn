@@ -10,30 +10,44 @@ namespace SorrisoApi.Services
 
         public AcessaSiteSeleniumService()
         {
-            driver = new ChromeDriver();
+            var options = new ChromeOptions();
+            var ambiente = Environment.GetEnvironmentVariable("ASNETCORE_ENVIRONMENT");
+            if (ambiente == "Production")
+            {
+                options.AddArgument("--headless");
+                options.AddArgument("--no-sandbox");
+                options.AddArgument("--disable-dev-shm-usage"); // Evita problemas de falta de memória no Linux
+            }
+            driver = new ChromeDriver(options);
         }
 
-        public async Task<List<DiaEscalaDTO>> ConsultarEscalaProgramada()
+        public async Task<List<DiaEscalaDTO>> ConsultarEscalaProgramada(LoginDTO login)
         {
-            driver
-                .Navigate()
-                .GoToUrl("http://siteparaacessarcomselenium.com.br");
+            string urlTarget = Environment.GetEnvironmentVariable("TARGET_URL") ?? "http://siteparaacessarcomselenium.com.br";
+            string selectorUsuario = Environment.GetEnvironmentVariable("SELECTOR_USER") ?? "Usuario";
+            string selectorSenha = Environment.GetEnvironmentVariable("SELECTOR_PASS") ?? "Senha";
+            string selectorLoginBtn = Environment.GetEnvironmentVariable("SELECTOR_LOGIN_BTN") ?? "Login";
+            string selectorTrafego = Environment.GetEnvironmentVariable("SELECTOR_TRAFEGO") ?? "trafego";
+            string selectorEscalaPro = Environment.GetEnvironmentVariable("SELECTOR_ESCALAPRO") ?? "escalapro";
+            string selectorTabela = Environment.GetEnvironmentVariable("SELECTOR_TABELA") ?? "tabela";
 
-            var nomeDoUsuario = driver.FindElement(By.Name("Usuario"));
-            var senha = driver.FindElement(By.Name("Senha"));
-            var entrar = driver.FindElement(By.Name("Login"));
+            driver.Navigate().GoToUrl(urlTarget);
 
-            nomeDoUsuario.SendKeys("usuario");
-            senha.SendKeys("senha");
+            var nomeDoUsuario = driver.FindElement(By.Name(selectorUsuario));
+            var senha = driver.FindElement(By.Name(selectorSenha));
+            var entrar = driver.FindElement(By.Name(selectorLoginBtn));
+
+            nomeDoUsuario.SendKeys(login.CPD);
+            senha.SendKeys(login.Senha);
             entrar.Submit();
 
-            var trafego = driver.FindElement(By.Id("trafego"));
+            var trafego = driver.FindElement(By.Id(selectorTrafego));
             trafego.Click();
 
-            var escalaProgramada = driver.FindElement(By.Id("escalapro"));
+            var escalaProgramada = driver.FindElement(By.Id(selectorEscalaPro));
             escalaProgramada.Click();
 
-            var tabelaEscalaProgramada = driver.FindElement(By.Id("tabela"));
+            var tabelaEscalaProgramada = driver.FindElement(By.Id(selectorTabela));
             var linhas = tabelaEscalaProgramada.FindElements(By.TagName("tr"));
             //var tabela = tabelaEscalaProgramada.GetAttribute("outerHTML");
             

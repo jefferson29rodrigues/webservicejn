@@ -19,9 +19,9 @@ namespace SorrisoApi.Controllers
         }
 
         [HttpGet("escalaProgramada")]
-        public async Task<IActionResult> ObterEscalaProgramada()
+        public async Task<IActionResult> ObterEscalaProgramada(LoginDTO login)
         {
-            var escala = await _acessaSiteService.ConsultarEscalaProgramada();
+            var escala = await _acessaSiteService.ConsultarEscalaProgramada(login);
             return Ok(escala);
         }
     }
