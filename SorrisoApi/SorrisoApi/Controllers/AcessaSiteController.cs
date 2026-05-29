@@ -18,7 +18,7 @@ namespace SorrisoApi.Controllers
             _acessaSiteService = acessaSiteService;
         }
 
-        [HttpGet("escalaProgramada")]
+        [HttpPost("escalaProgramada")]
         public async Task<IActionResult> ObterEscalaProgramada(LoginDTO login)
         {
             var escala = await _acessaSiteService.ConsultarEscalaProgramada(login);

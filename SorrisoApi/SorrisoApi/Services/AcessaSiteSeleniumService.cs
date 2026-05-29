@@ -1,64 +1,64 @@
-﻿using OpenQA.Selenium;
+﻿using Microsoft.Extensions.Options;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using SorrisoApi.Models.DTOs;
+using SorrisoApi.Settings;
 
 namespace SorrisoApi.Services
 {
     public class AcessaSiteSeleniumService
     {
-        public IWebDriver driver;
+        private readonly SeleniumSettings _settings;
 
-        public AcessaSiteSeleniumService()
+        public AcessaSiteSeleniumService(IOptions<SeleniumSettings> options)
         {
-            var options = new ChromeOptions();
-            var ambiente = Environment.GetEnvironmentVariable("ASNETCORE_ENVIRONMENT");
-            if (ambiente == "Production")
-            {
-                options.AddArgument("--headless");
-                options.AddArgument("--no-sandbox");
-                options.AddArgument("--disable-dev-shm-usage"); // Evita problemas de falta de memória no Linux
-            }
-            driver = new ChromeDriver(options);
+            _settings = options.Value;
         }
 
         public async Task<List<DiaEscalaDTO>> ConsultarEscalaProgramada(LoginDTO login)
         {
-            string urlTarget = Environment.GetEnvironmentVariable("TARGET_URL") ?? "http://siteparaacessarcomselenium.com.br";
-            string selectorUsuario = Environment.GetEnvironmentVariable("SELECTOR_USER") ?? "Usuario";
-            string selectorSenha = Environment.GetEnvironmentVariable("SELECTOR_PASS") ?? "Senha";
-            string selectorLoginBtn = Environment.GetEnvironmentVariable("SELECTOR_LOGIN_BTN") ?? "Login";
-            string selectorTrafego = Environment.GetEnvironmentVariable("SELECTOR_TRAFEGO") ?? "trafego";
-            string selectorEscalaPro = Environment.GetEnvironmentVariable("SELECTOR_ESCALAPRO") ?? "escalapro";
-            string selectorTabela = Environment.GetEnvironmentVariable("SELECTOR_TABELA") ?? "tabela";
+            var options = new ChromeOptions();
 
-            driver.Navigate().GoToUrl(urlTarget);
+            var ambiente = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            if (ambiente == "Production")
+            {
+                options.AddArgument("--headless=new");
+                options.AddArgument("--no-sandbox");
+                options.AddArgument("--disable-dev-shm-usage");
+                options.AddArgument("--disable-gpu");
+                options.AddArgument("--blink-settings=imagesEnabled=false");
+            }
 
-            var nomeDoUsuario = driver.FindElement(By.Name(selectorUsuario));
-            var senha = driver.FindElement(By.Name(selectorSenha));
-            var entrar = driver.FindElement(By.Name(selectorLoginBtn));
+            using var driver = new ChromeDriver(options);
+
+            driver.Navigate().GoToUrl(_settings.TargetUrl);
+
+            var nomeDoUsuario = driver.FindElement(By.Name(_settings.SelectorUsuario));
+            var senha = driver.FindElement(By.Name(_settings.SelectorSenha));
+            var entrar = driver.FindElement(By.Name(_settings.SelectorLoginBtn));
 
             nomeDoUsuario.SendKeys(login.CPD);
             senha.SendKeys(login.Senha);
             entrar.Submit();
 
-            var trafego = driver.FindElement(By.Id(selectorTrafego));
+            var trafego = driver.FindElement(By.Id(_settings.SelectorTrafego));
             trafego.Click();
 
-            var escalaProgramada = driver.FindElement(By.Id(selectorEscalaPro));
+            var escalaProgramada = driver.FindElement(By.Id(_settings.SelectorEscalaPro));
             escalaProgramada.Click();
 
-            var tabelaEscalaProgramada = driver.FindElement(By.Id(selectorTabela));
+            var tabelaEscalaProgramada = driver.FindElement(By.Id(_settings.SelectorTabela));
             var linhas = tabelaEscalaProgramada.FindElements(By.TagName("tr"));
-            //var tabela = tabelaEscalaProgramada.GetAttribute("outerHTML");
-            
+
             var escala = new List<DiaEscalaDTO>();
 
             foreach (var linha in linhas)
             {
                 var colunas = linha.FindElements(By.TagName("td"));
-                if (colunas.Count > 1)
+
+                if (colunas.Count > 15)
                 {
-                    var diaEscala = new DiaEscalaDTO
+                    escala.Add(new DiaEscalaDTO
                     {
                         Data = colunas[1].Text,
                         Dia = colunas[2].Text,
@@ -67,12 +67,11 @@ namespace SorrisoApi.Services
                         Equipamento = colunas[8].Text,
                         HoraInicio = colunas[11].Text,
                         HoraFim = colunas[12].Text,
-                        Cargo = colunas[12].Text
-                    };
-                    escala.Add(diaEscala);
+                        Cargo = colunas[15].Text
+                    });
                 }
             }
-            driver.Quit();
+
             return escala;
         }
     }

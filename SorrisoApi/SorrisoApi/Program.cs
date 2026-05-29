@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.RateLimiting;
 using SorrisoApi.Middlewares;
 using SorrisoApi.Services;
+using SorrisoApi.Settings;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,8 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<IOcrService, ProcessarImagemService>();
 builder.Services.AddScoped<AcessaSiteSeleniumService>();
+
+builder.Services.Configure<SeleniumSettings>(builder.Configuration.GetSection("SeleniumSettings"));
 
 builder.Services.AddRateLimiter(options =>
 {
