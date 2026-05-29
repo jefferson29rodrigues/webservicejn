@@ -11,14 +11,21 @@ namespace SorrisoApi.Services
     {
         private readonly string _dataPath;
         private readonly string _language = "por";
+        private readonly ILogger<ProcessarImagemService> _logger;
 
-        public ProcessarImagemService(IWebHostEnvironment env)
+        public ProcessarImagemService(IWebHostEnvironment env, ILogger<ProcessarImagemService> logger)
         {
             _dataPath = Path.Combine(env.ContentRootPath, "tessdata");
+            _logger = logger;
         }
 
         public string ExtractText(Stream imageStream)
         {
+            if (imageStream == null || !imageStream.CanRead)
+            {
+                throw new ArgumentException("Imagem inválida.");
+            }
+
             try
             {
                 using var engine = new TesseractEngine(_dataPath, _language, EngineMode.Default);
@@ -29,13 +36,14 @@ namespace SorrisoApi.Services
                 using var img = Pix.LoadFromMemory(ms.ToArray());
 
                 using var page = engine.Process(img);
+                var text = page.GetText()?.Trim();
 
-                var text = page.GetText();
-                return text;
+                return text ?? string.Empty;
             }
             catch (Exception ex)
             {
-                return $"Erro ao processar OCR: {ex.Message}";
+                _logger.LogError(ex, "Erro ao processar OCR.");
+                throw new Exception("Erro ao processar imagem.");
             }
         }
     }

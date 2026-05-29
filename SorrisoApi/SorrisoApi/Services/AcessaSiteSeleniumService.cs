@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Support.UI;
 using SorrisoApi.Models.DTOs;
 using SorrisoApi.Settings;
 
@@ -10,13 +11,21 @@ namespace SorrisoApi.Services
     {
         private readonly SeleniumSettings _settings;
 
-        public AcessaSiteSeleniumService(IOptions<SeleniumSettings> options)
+        private readonly ILogger<AcessaSiteSeleniumService> _logger;
+
+        public AcessaSiteSeleniumService(IOptions<SeleniumSettings> options, ILogger<AcessaSiteSeleniumService> logger)
         {
             _settings = options.Value;
+            _logger = logger;
         }
 
         public async Task<List<DiaEscalaDTO>> ConsultarEscalaProgramada(LoginDTO login)
         {
+            if (login == null)
+            {
+                throw new ArgumentException("Login inválido.");
+            }
+
             var options = new ChromeOptions();
 
             var ambiente = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -30,49 +39,70 @@ namespace SorrisoApi.Services
             }
 
             using var driver = new ChromeDriver(options);
+            driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(20);
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
 
-            driver.Navigate().GoToUrl(_settings.TargetUrl);
-
-            var nomeDoUsuario = driver.FindElement(By.Name(_settings.SelectorUsuario));
-            var senha = driver.FindElement(By.Name(_settings.SelectorSenha));
-            var entrar = driver.FindElement(By.Name(_settings.SelectorLoginBtn));
-
-            nomeDoUsuario.SendKeys(login.CPD);
-            senha.SendKeys(login.Senha);
-            entrar.Submit();
-
-            var trafego = driver.FindElement(By.Id(_settings.SelectorTrafego));
-            trafego.Click();
-
-            var escalaProgramada = driver.FindElement(By.Id(_settings.SelectorEscalaPro));
-            escalaProgramada.Click();
-
-            var tabelaEscalaProgramada = driver.FindElement(By.Id(_settings.SelectorTabela));
-            var linhas = tabelaEscalaProgramada.FindElements(By.TagName("tr"));
-
-            var escala = new List<DiaEscalaDTO>();
-
-            foreach (var linha in linhas)
+            try
             {
-                var colunas = linha.FindElements(By.TagName("td"));
+                driver.Navigate().GoToUrl(_settings.TargetUrl);
 
-                if (colunas.Count > 15)
+                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+
+                var nomeDoUsuario = wait.Until(d => d.FindElement(By.Name(_settings.SelectorUsuario)));
+                var senha = driver.FindElement(By.Name(_settings.SelectorSenha));
+                var entrar = driver.FindElement(By.Name(_settings.SelectorLoginBtn));
+
+                nomeDoUsuario.SendKeys(login.CPD);
+                senha.SendKeys(login.Senha);
+                entrar.Submit();
+
+                var trafego = wait.Until(d => d.FindElement(By.Id(_settings.SelectorTrafego)));
+                trafego.Click();
+
+                var escalaProgramada = wait.Until(d => d.FindElement(By.Id(_settings.SelectorEscalaPro)));
+                escalaProgramada.Click();
+
+                var tabelaEscalaProgramada = wait.Until(d => d.FindElement(By.Id(_settings.SelectorTabela)));
+                var linhas = tabelaEscalaProgramada.FindElements(By.TagName("tr"));
+
+                var escala = new List<DiaEscalaDTO>();
+
+                foreach (var linha in linhas)
                 {
-                    escala.Add(new DiaEscalaDTO
+                    var colunas = linha.FindElements(By.TagName("td"));
+                    if (colunas.Count > 15)
                     {
-                        Data = colunas[1].Text,
-                        Dia = colunas[2].Text,
-                        Tipo = colunas[3].Text,
-                        Local = colunas[6].Text,
-                        Equipamento = colunas[8].Text,
-                        HoraInicio = colunas[11].Text,
-                        HoraFim = colunas[12].Text,
-                        Cargo = colunas[15].Text
-                    });
+                        escala.Add(new DiaEscalaDTO
+                        {
+                            Data = colunas[1].Text.Trim(),
+                            Dia = colunas[2].Text.Trim(),
+                            Tipo = colunas[3].Text.Trim(),
+                            Local = colunas[6].Text.Trim(),
+                            Equipamento = colunas[8].Text.Trim(),
+                            HoraInicio = colunas[11].Text.Trim(),
+                            HoraFim = colunas[12].Text.Trim(),
+                            Cargo = colunas[15].Text.Trim()
+                        });
+                    }
                 }
-            }
 
-            return escala;
+                return escala;
+            }
+            catch (WebDriverTimeoutException ex)
+            {
+                _logger.LogWarning(ex, "Timeout Selenium.");
+                throw new Exception("Tempo excedido ao acessar sistema.");
+            }
+            catch (NoSuchElementException ex)
+            {
+                _logger.LogWarning(ex, "Elemento não encontrado.");
+                throw new Exception("Erro ao localizar dados da escala.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro Selenium.");
+                throw new Exception("Erro ao acessar sistema.");
+            }
         }
     }
 }
