@@ -21,8 +21,23 @@ namespace SorrisoApi.Controllers
         [HttpPost("escalaProgramada")]
         public async Task<IActionResult> ObterEscalaProgramada(LoginDTO login)
         {
-            var escala = await _acessaSiteService.ConsultarEscalaProgramada(login);
-            return Ok(escala);
+            try
+            {
+                var escala = await _acessaSiteService.ConsultarEscalaProgramada(login);
+                return Ok(new ApiResponseDTO<List<DiaEscalaDTO>>
+                {
+                    Success = true,
+                    Data = escala
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponseDTO<List<DiaEscalaDTO>>
+                {
+                    Success = false,
+                    ErrorMessage = ex.Message
+                });
+            }
         }
     }
 }
