@@ -4,13 +4,13 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using SorrisoApi.Models.DTOs;
 using SorrisoApi.Settings;
+using System.Diagnostics;
 
 namespace SorrisoApi.Services
 {
     public class AcessaSiteSeleniumService
     {
         private readonly SeleniumSettings _settings;
-
         private readonly ILogger<AcessaSiteSeleniumService> _logger;
 
         public AcessaSiteSeleniumService(IOptions<SeleniumSettings> options, ILogger<AcessaSiteSeleniumService> logger)
@@ -26,6 +26,16 @@ namespace SorrisoApi.Services
                 throw new ArgumentException("Login inválido.");
             }
 
+            if (string.IsNullOrWhiteSpace(login.CPD) || string.IsNullOrWhiteSpace(login.Senha))
+            {
+                throw new ArgumentException("Credenciais inválidas.");
+            }
+
+            if (string.IsNullOrWhiteSpace(_settings.TargetUrl))
+            {
+                throw new InvalidOperationException("TargetUrl não configurada.");
+            }
+
             var options = new ChromeOptions();
 
             var ambiente = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -38,15 +48,21 @@ namespace SorrisoApi.Services
                 options.AddArgument("--blink-settings=imagesEnabled=false");
             }
 
+            var tempoTotal = Stopwatch.StartNew();
+
             using var driver = new ChromeDriver(options);
             driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(20);
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
 
             try
             {
+                var etapa = Stopwatch.StartNew();
+
                 driver.Navigate().GoToUrl(_settings.TargetUrl);
 
+                _logger.LogInformation("Tempo abrir site: {Tempo} ms", etapa.ElapsedMilliseconds);
+
                 var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+                etapa.Restart();
 
                 var nomeDoUsuario = wait.Until(d => d.FindElement(By.Name(_settings.SelectorUsuario)));
                 var senha = driver.FindElement(By.Name(_settings.SelectorSenha));
@@ -56,20 +72,32 @@ namespace SorrisoApi.Services
                 senha.SendKeys(login.Senha);
                 entrar.Submit();
 
+                _logger.LogInformation("Tempo login: {Tempo} ms", etapa.ElapsedMilliseconds);
+                etapa.Restart();
+
                 var trafego = wait.Until(d => d.FindElement(By.Id(_settings.SelectorTrafego)));
                 trafego.Click();
+
+                _logger.LogInformation("Tempo abrir tráfego: {Tempo} ms", etapa.ElapsedMilliseconds);
+                etapa.Restart();
 
                 var escalaProgramada = wait.Until(d => d.FindElement(By.Id(_settings.SelectorEscalaPro)));
                 escalaProgramada.Click();
 
+                _logger.LogInformation("Tempo abrir escala: {Tempo} ms", etapa.ElapsedMilliseconds);
+
                 var tabelaEscalaProgramada = wait.Until(d => d.FindElement(By.Id(_settings.SelectorTabela)));
                 var linhas = tabelaEscalaProgramada.FindElements(By.TagName("tr"));
+
+                _logger.LogInformation("Quantidade de linhas encontradas: {Qtd}", linhas.Count);
+                etapa.Restart();
 
                 var escala = new List<DiaEscalaDTO>();
 
                 foreach (var linha in linhas)
                 {
                     var colunas = linha.FindElements(By.TagName("td"));
+
                     if (colunas.Count > 15)
                     {
                         escala.Add(new DiaEscalaDTO
@@ -85,6 +113,10 @@ namespace SorrisoApi.Services
                         });
                     }
                 }
+
+                _logger.LogInformation("Tempo processamento completo: {Tempo} ms", etapa.ElapsedMilliseconds);
+                _logger.LogInformation("Quantidade de registros extraídos: {Qtd}", escala.Count);
+                _logger.LogInformation("Tempo total requisição Selenium: {Tempo} ms", tempoTotal.ElapsedMilliseconds);
 
                 return escala;
             }

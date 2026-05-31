@@ -10,7 +10,6 @@ namespace SorrisoApi.Controllers
     public class ProcessarImagemController : ControllerBase
     {
         private readonly IOcrService _processarImagemService;
-
         private const long TAMANHO_MAXIMO_ARQUIVO = 5_000_000; // 5 MB
 
         private static readonly string[] TiposPermitidos =
@@ -20,8 +19,7 @@ namespace SorrisoApi.Controllers
             "image/jpg"
         };
 
-        public ProcessarImagemController(
-            IOcrService processarImagemService)
+        public ProcessarImagemController(IOcrService processarImagemService)
         {
             _processarImagemService = processarImagemService;
         }
