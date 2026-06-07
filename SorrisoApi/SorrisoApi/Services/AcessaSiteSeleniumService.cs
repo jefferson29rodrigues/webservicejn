@@ -51,6 +51,14 @@ namespace SorrisoApi.Services
                 chromeOptions.AddArgument("--disable-setuid-sandbox");
                 chromeOptions.AddArgument("--disable-dev-tools");
                 chromeOptions.AddArgument("--window-size=1280,720");
+                chromeOptions.AddArgument("--shm-size=128m");          // adicionar
+                chromeOptions.AddArgument("--memory-pressure-off");    // adicionar
+                chromeOptions.AddArgument("--disable-extensions");     // adicionar
+                chromeOptions.AddArgument("--disable-background-networking"); // adicionar
+                chromeOptions.AddArgument("--disable-default-apps");   // adicionar
+                chromeOptions.AddArgument("--disable-sync");           // adicionar
+                chromeOptions.AddArgument("--metrics-recording-only"); // adicionar
+                chromeOptions.AddArgument("--mute-audio");             // adicionar
             }
 
             // =====================================================
