@@ -46,6 +46,11 @@ namespace SorrisoApi.Services
                 options.AddArgument("--disable-dev-shm-usage");
                 options.AddArgument("--disable-gpu");
                 options.AddArgument("--blink-settings=imagesEnabled=false");
+                options.AddArgument("--single-process");
+                options.AddArgument("--no-zygote");
+                options.AddArgument("--disable-setuid-sandbox");
+                options.AddArgument("--disable-dev-tools");
+                options.AddArgument("--window-size=1280,720");
             }
 
             var tempoTotal = Stopwatch.StartNew();
