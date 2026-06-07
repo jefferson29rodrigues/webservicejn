@@ -55,7 +55,14 @@ namespace SorrisoApi.Services
 
             var tempoTotal = Stopwatch.StartNew();
 
-            using var driver = new ChromeDriver(options);
+            //using var driver = new ChromeDriver(options);
+
+            var driverService = ChromeDriverService.CreateDefaultService();
+            driverService.EnableVerboseLogging = true;
+            driverService.LogPath = "/tmp/chromedriver.log";
+
+            using var driver = new ChromeDriver(driverService, options);
+
             driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(20);
 
             try
