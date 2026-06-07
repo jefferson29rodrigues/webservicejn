@@ -65,7 +65,11 @@ COPY --from=build /app/publish .
 
 # Cria usuário sem privilégios
 RUN groupadd -r appgroup \
-    && useradd -r -g appgroup appuser \
+    && useradd -r -g appgroup -m -d /home/appuser appuser \
+    && mkdir -p /home/appuser/.local/share/applications \
+    && mkdir -p /home/appuser/.config \
+    && mkdir -p /home/appuser/.cache \
+    && chown -R appuser:appgroup /home/appuser \
     && chown -R appuser:appgroup /app
 
 USER appuser
