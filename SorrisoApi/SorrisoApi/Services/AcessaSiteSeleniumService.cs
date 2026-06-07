@@ -36,32 +36,68 @@ namespace SorrisoApi.Services
                 throw new InvalidOperationException("TargetUrl não configurada.");
             }
 
-            var options = new ChromeOptions();
+            var chromeOptions = new ChromeOptions();
 
             var ambiente = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             if (ambiente == "Production")
             {
-                options.AddArgument("--headless=new");
-                options.AddArgument("--no-sandbox");
-                options.AddArgument("--disable-dev-shm-usage");
-                options.AddArgument("--disable-gpu");
-                options.AddArgument("--blink-settings=imagesEnabled=false");
-                options.AddArgument("--single-process");
-                options.AddArgument("--no-zygote");
-                options.AddArgument("--disable-setuid-sandbox");
-                options.AddArgument("--disable-dev-tools");
-                options.AddArgument("--window-size=1280,720");
+                chromeOptions.AddArgument("--headless=new");
+                chromeOptions.AddArgument("--no-sandbox");
+                chromeOptions.AddArgument("--disable-dev-shm-usage");
+                chromeOptions.AddArgument("--disable-gpu");
+                chromeOptions.AddArgument("--blink-settings=imagesEnabled=false");
+                chromeOptions.AddArgument("--single-process");
+                chromeOptions.AddArgument("--no-zygote");
+                chromeOptions.AddArgument("--disable-setuid-sandbox");
+                chromeOptions.AddArgument("--disable-dev-tools");
+                chromeOptions.AddArgument("--window-size=1280,720");
             }
+
+            // =====================================================
+            // DIAGNÓSTICO TEMPORÁRIO — remover este bloco após
+            // identificar e resolver o problema do Chrome no Render
+            // =====================================================
+            try
+            {
+                var testProcess = new System.Diagnostics.Process();
+                testProcess.StartInfo.FileName = "google-chrome";
+                testProcess.StartInfo.Arguments = "--headless=new --no-sandbox --disable-gpu --dump-dom about:blank";
+                testProcess.StartInfo.RedirectStandardOutput = true;
+                testProcess.StartInfo.RedirectStandardError = true;
+                testProcess.StartInfo.UseShellExecute = false;
+                testProcess.Start();
+
+                var stdout = testProcess.StandardOutput.ReadToEnd();
+                var stderr = testProcess.StandardError.ReadToEnd();
+                testProcess.WaitForExit(10000);
+
+                _logger.LogInformation("Chrome teste - exit code: {Code}", testProcess.ExitCode);
+                _logger.LogInformation("Chrome teste - stdout: {Out}", stdout[..Math.Min(500, stdout.Length)]);
+                _logger.LogWarning("Chrome teste - stderr: {Err}", stderr[..Math.Min(500, stderr.Length)]);
+            }
+            catch (Exception diagEx)
+            {
+                _logger.LogError(diagEx, "Chrome teste - falha ao executar processo diretamente.");
+            }
+            // =====================================================
+            // FIM DO DIAGNÓSTICO TEMPORÁRIO
+            // =====================================================
 
             var tempoTotal = Stopwatch.StartNew();
 
-            //using var driver = new ChromeDriver(options);
-
+            // =====================================================
+            // DIAGNÓSTICO TEMPORÁRIO — substituir por:
+            //   using var driver = new ChromeDriver(chromeOptions);
+            // após resolver o problema
+            // =====================================================
             var driverService = ChromeDriverService.CreateDefaultService();
             driverService.EnableVerboseLogging = true;
             driverService.LogPath = "/tmp/chromedriver.log";
 
-            using var driver = new ChromeDriver(driverService, options);
+            using var driver = new ChromeDriver(driverService, chromeOptions);
+            // =====================================================
+            // FIM DO DIAGNÓSTICO TEMPORÁRIO
+            // =====================================================
 
             driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(20);
 
