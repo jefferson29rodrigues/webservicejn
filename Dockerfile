@@ -10,14 +10,14 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copia apenas o projeto para aproveitar cache do restore
-COPY ["SorrisoApi/SorrisoApi.csproj", "SorrisoApi/"]
+COPY ["SorrisoApi/SorrisoApi/SorrisoApi.csproj", "SorrisoApi/SorrisoApi/"]
 
-RUN dotnet restore "SorrisoApi/SorrisoApi.csproj"
+RUN dotnet restore "SorrisoApi/SorrisoApi/SorrisoApi.csproj"
 
 # Copia o restante da aplicação
 COPY . .
 
-WORKDIR "/src/SorrisoApi"
+WORKDIR "/src/SorrisoApi/SorrisoApi"
 
 RUN dotnet publish "SorrisoApi.csproj" \
     -c Release \
