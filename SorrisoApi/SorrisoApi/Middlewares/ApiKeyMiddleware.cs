@@ -2,7 +2,7 @@
 {
     public class ApiKeyMiddleware
     {
-        public readonly RequestDelegate _next;
+        private readonly RequestDelegate _next;
         private const string APIKEYNAME = "X-Api-Key";
 
         public ApiKeyMiddleware(RequestDelegate next)
@@ -20,7 +20,7 @@
             }
 
             var apiKey = configuration.GetValue<string>("ApiKeySettings:ApiKey");
-            if (string.IsNullOrEmpty(apiKey) || !apiKey.Equals(extractedApiKey))
+            if (string.IsNullOrEmpty(apiKey) || !CompararApiKey(apiKey, extractedApiKey!))
             {
                 context.Response.StatusCode = 401;
                 await context.Response.WriteAsync("API Key inválida");
@@ -28,6 +28,13 @@
             }
 
             await _next(context);
+        }
+
+        private static bool CompararApiKey(string chaveEsperada, string chaveRecebida)
+        {
+            var bytesEsperados = System.Text.Encoding.UTF8.GetBytes(chaveEsperada);
+            var bytesRecebidos = System.Text.Encoding.UTF8.GetBytes(chaveRecebida);
+            return System.Security.Cryptography.CryptographicOperations.FixedTimeEquals(bytesEsperados, bytesRecebidos);
         }
     }
 }

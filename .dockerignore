@@ -1,0 +1,49 @@
+# =============================================================
+# .dockerignore — SorrisoApi
+#
+# Funciona como o .gitignore, mas para o Docker.
+# Tudo listado aqui NÃO é enviado para o contexto de build.
+#
+# Por que isso importa para segurança?
+# Sem esse arquivo, o Docker enviaria TUDO da pasta para o
+# daemon de build, incluindo segredos e arquivos desnecessários.
+# =============================================================
+
+# Pastas de build local — não precisam ir para o container
+**/bin/
+**/obj/
+**/out/
+
+# Segredos e configurações locais — NUNCA devem entrar na imagem
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/appsettings.*.local.json
+**/usersecrets.json
+**/.env
+**/*.pfx
+**/*.p12
+**/*.key
+**/*.pem
+
+# IDE e metadados de desenvolvimento
+**/.vs/
+**/.vscode/
+**/*.user
+**/*.suo
+**/*.userosscache
+
+# Git
+**/.git/
+**/.gitignore
+
+# Logs e temporários
+**/logs/
+**/*.log
+**/*.tmp
+
+# Publicação anterior (não misturar com o build atual)
+**/publish/
+
+# O próprio Dockerfile e dockerignore
+Dockerfile
+.dockerignore

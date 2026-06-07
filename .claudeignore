@@ -1,0 +1,10 @@
+# .claudeignore
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.local.json
+usersecrets.json
+secrets.json
+*.pfx
+*.key
+*.pem
+.env
