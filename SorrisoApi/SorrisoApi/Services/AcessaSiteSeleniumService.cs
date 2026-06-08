@@ -43,22 +43,20 @@ namespace SorrisoApi.Services
             {
                 chromeOptions.AddArgument("--headless=new");
                 chromeOptions.AddArgument("--no-sandbox");
+                chromeOptions.AddArgument("--disable-setuid-sandbox");
                 chromeOptions.AddArgument("--disable-dev-shm-usage");
                 chromeOptions.AddArgument("--disable-gpu");
-                chromeOptions.AddArgument("--blink-settings=imagesEnabled=false");
-                chromeOptions.AddArgument("--single-process");
                 chromeOptions.AddArgument("--no-zygote");
-                chromeOptions.AddArgument("--disable-setuid-sandbox");
-                chromeOptions.AddArgument("--disable-dev-tools");
                 chromeOptions.AddArgument("--window-size=1280,720");
-                chromeOptions.AddArgument("--shm-size=128m");          // adicionar
-                chromeOptions.AddArgument("--memory-pressure-off");    // adicionar
-                chromeOptions.AddArgument("--disable-extensions");     // adicionar
-                chromeOptions.AddArgument("--disable-background-networking"); // adicionar
-                chromeOptions.AddArgument("--disable-default-apps");   // adicionar
-                chromeOptions.AddArgument("--disable-sync");           // adicionar
-                chromeOptions.AddArgument("--metrics-recording-only"); // adicionar
-                chromeOptions.AddArgument("--mute-audio");             // adicionar
+                chromeOptions.AddArgument("--disable-extensions");
+                chromeOptions.AddArgument("--disable-background-networking");
+                chromeOptions.AddArgument("--disable-sync");
+                chromeOptions.AddArgument("--mute-audio");
+                chromeOptions.AddArgument("--blink-settings=imagesEnabled=false");
+
+                // Aponta para /tmp para evitar problemas de permissão
+                chromeOptions.AddArgument("--user-data-dir=/tmp/chrome-data");
+                chromeOptions.AddArgument("--disk-cache-dir=/tmp/chrome-cache");
             }
 
             // =====================================================
