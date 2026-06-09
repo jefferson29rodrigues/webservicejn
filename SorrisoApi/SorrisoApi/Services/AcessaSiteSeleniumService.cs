@@ -105,7 +105,7 @@ namespace SorrisoApi.Services
             // FIM DO DIAGNÓSTICO TEMPORÁRIO
             // =====================================================
 
-            driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(20);
+            driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(60);
 
             try
             {
@@ -115,7 +115,7 @@ namespace SorrisoApi.Services
 
                 _logger.LogInformation("Tempo abrir site: {Tempo} ms", etapa.ElapsedMilliseconds);
 
-                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
                 etapa.Restart();
 
                 var nomeDoUsuario = wait.Until(d => d.FindElement(By.Name(_settings.SelectorUsuario)));
