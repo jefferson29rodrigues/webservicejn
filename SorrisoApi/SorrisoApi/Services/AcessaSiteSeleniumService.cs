@@ -53,57 +53,13 @@ namespace SorrisoApi.Services
                 chromeOptions.AddArgument("--disable-sync");
                 chromeOptions.AddArgument("--mute-audio");
                 chromeOptions.AddArgument("--blink-settings=imagesEnabled=false");
-
-                // Aponta para /tmp para evitar problemas de permissão
                 chromeOptions.AddArgument("--user-data-dir=/tmp/chrome-data");
                 chromeOptions.AddArgument("--disk-cache-dir=/tmp/chrome-cache");
             }
 
-            // =====================================================
-            // DIAGNÓSTICO TEMPORÁRIO — remover este bloco após
-            // identificar e resolver o problema do Chrome no Render
-            // =====================================================
-            try
-            {
-                var testProcess = new System.Diagnostics.Process();
-                testProcess.StartInfo.FileName = "google-chrome";
-                testProcess.StartInfo.Arguments = "--headless=new --no-sandbox --disable-gpu --dump-dom about:blank";
-                testProcess.StartInfo.RedirectStandardOutput = true;
-                testProcess.StartInfo.RedirectStandardError = true;
-                testProcess.StartInfo.UseShellExecute = false;
-                testProcess.Start();
-
-                var stdout = testProcess.StandardOutput.ReadToEnd();
-                var stderr = testProcess.StandardError.ReadToEnd();
-                testProcess.WaitForExit(10000);
-
-                _logger.LogInformation("Chrome teste - exit code: {Code}", testProcess.ExitCode);
-                _logger.LogInformation("Chrome teste - stdout: {Out}", stdout[..Math.Min(500, stdout.Length)]);
-                _logger.LogWarning("Chrome teste - stderr: {Err}", stderr[..Math.Min(500, stderr.Length)]);
-            }
-            catch (Exception diagEx)
-            {
-                _logger.LogError(diagEx, "Chrome teste - falha ao executar processo diretamente.");
-            }
-            // =====================================================
-            // FIM DO DIAGNÓSTICO TEMPORÁRIO
-            // =====================================================
-
             var tempoTotal = Stopwatch.StartNew();
 
-            // =====================================================
-            // DIAGNÓSTICO TEMPORÁRIO — substituir por:
-            //   using var driver = new ChromeDriver(chromeOptions);
-            // após resolver o problema
-            // =====================================================
-            var driverService = ChromeDriverService.CreateDefaultService();
-            driverService.EnableVerboseLogging = true;
-            driverService.LogPath = "/tmp/chromedriver.log";
-
-            using var driver = new ChromeDriver(driverService, chromeOptions);
-            // =====================================================
-            // FIM DO DIAGNÓSTICO TEMPORÁRIO
-            // =====================================================
+            using var driver = new ChromeDriver(chromeOptions);
 
             driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(60);
 
