@@ -82,6 +82,22 @@ namespace SorrisoApi.Services
                 senha.SendKeys(login.Senha);
                 entrar.Submit();
 
+                var tituloPagina = driver.Title;
+                if (tituloPagina == "Login - Radsystem")
+                {
+                    var botaoOk = driver.FindElement(By.ClassName("swal-button--confirm"));
+                    botaoOk.Click();
+                    driver.Close();
+                    throw new UnauthorizedAccessException("Usuário ou senha inválidos");
+                }
+
+                // <title> Login - Radsystem </title>
+                // if (class="swal-button swal-button--confirm")
+                // <title> Radsystem </ title >
+                // <div class="swal-text" style>Colaborador não encontrado.</div>
+                // <div class="swal-text" style>Senha inválida. Verifique.</div>
+
+
                 _logger.LogInformation("Tempo login: {Tempo} ms", etapa.ElapsedMilliseconds);
                 etapa.Restart();
 
@@ -130,15 +146,20 @@ namespace SorrisoApi.Services
 
                 return escala;
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning(ex, "CPD ou senha inválidos");
+                throw;
+            }
             catch (WebDriverTimeoutException ex)
             {
                 _logger.LogWarning(ex, "Timeout Selenium.");
-                throw new Exception("Tempo excedido ao acessar sistema.");
+                throw new TimeoutException("Tempo excedido ao acessar sistema.");
             }
             catch (NoSuchElementException ex)
             {
                 _logger.LogWarning(ex, "Elemento não encontrado.");
-                throw new Exception("Erro ao localizar dados da escala.");
+                throw new InvalidOperationException("Erro ao localizar dados da escala.");
             }
             catch (Exception ex)
             {
