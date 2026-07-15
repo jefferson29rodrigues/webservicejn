@@ -33,13 +33,15 @@ namespace SorrisoApi.Controllers
                     });
                 }
 
-                var escala = await _acessaSiteService.ConsultarEscalaProgramada(login);
+                var escala = await _acessaSiteService.GetEscalaProgramada(login);
 
-                return Ok(new ApiResponseDTO<List<DiaEscalaDTO>>
+                var resposta = new ApiResponseDTO<List<DiaEscalaDTO>>
                 {
                     Success = true,
                     Data = escala
-                });
+                };
+
+                return Ok(resposta);
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -57,6 +59,31 @@ namespace SorrisoApi.Controllers
                 {
                     Success = false,
                     ErrorMessage = "Erro interno ao processar requisição."
+                });
+            }
+        }
+
+        [HttpPost("mensagens")]
+        public async Task<IActionResult> ObterMensagens([FromBody] LoginDTO login)
+        {
+            try
+            {
+                var mensagens = await _acessaSiteService.GetMensagens(login);
+                //return mensagens;
+
+                return Ok(new ApiResponseDTO<List<MensagemDTO>>
+                {
+                    Success = true,
+                    Data = mensagens
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro mensagens");
+                return StatusCode(500, new ApiResponseDTO<object>
+                {
+                    Success = false,
+                    ErrorMessage = "Erro ao consultar mensagens"
                 });
             }
         }

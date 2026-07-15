@@ -9,5 +9,6 @@
         public string SelectorTrafego { get; set; }
         public string SelectorEscalaPro { get; set; }
         public string SelectorTabela { get; set; }
+        public string SelectorMensagens { get; set; }
     }
 }
