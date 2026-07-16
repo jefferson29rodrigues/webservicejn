@@ -234,19 +234,14 @@ namespace SorrisoApi.Services
                 entrar.Submit();
 
                 var tituloPagina = driver.Title;
-                _logger.LogInformation($"1-FORA-Titulo Pagina: {tituloPagina}");
                 if (tituloPagina == "Login - Radsystem")
                 {
                     var botaoOk = driver.FindElement(By.ClassName("swal-button--confirm"));
-                    _logger.LogInformation($"2-DENTRO-Titulo Pagina: {tituloPagina}");
                     botaoOk.Click();
-                    _logger.LogInformation($"3-DENTRO-Titulo Pagina: {tituloPagina}");
                     driver.Close();
-                    _logger.LogInformation($"4-DENTRO-Titulo Pagina: {tituloPagina}");
                     throw new UnauthorizedAccessException("Usuário ou senha inválidos");
-                    _logger.LogInformation($"5-DENTRO-Titulo Pagina: {tituloPagina}");
                 }
-                _logger.LogInformation($"6-DENTRO-Titulo Pagina: {tituloPagina}");
+
                 var botaoMensagens = driver.FindElement(By.Id(_settings.SelectorMensagens));
                 botaoMensagens.Click();
 
